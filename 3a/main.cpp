@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <chrono>
+#include <omp.h>
 
 typedef int ** matrix;
 
@@ -14,14 +15,15 @@ matrix create_matrix(int n)
     return matrix;
 }
 
-matrix mult_matrix(int ** a, int ** b, int n)
+matrix mult_matrix(matrix a, matrix b, int n)
 {
     matrix c = create_matrix(n);
+#pragma omp parallel for
     for (int i = 0; i < n; ++i)
     {
-        for (int k = 0; k < n; ++k)
+        for (int j = 0; j < n; ++j)
         {
-            for (int j = 0; j < n; ++j)
+            for (int k = 0; k < n; ++k)
             {
                 c[i][j] += a[i][k] * b[k][j];
             }
