@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <chrono>
 
+#include "../common/performance_evaluator.h"
+
 typedef int ** matrix;
 
 matrix create_matrix(int n)
@@ -42,11 +44,21 @@ int main(int argc, char ** argv)
 
     matrix a = create_matrix(n);
     matrix b = create_matrix(n);
-    
-    auto begin = std::chrono::system_clock::now();
-    mult_matrix(a, b, n);
-    auto end = std::chrono::system_clock::now();
 
-    printf("%f\n", std::chrono::duration<double>(end - begin).count());
+    if (perf_evaluator_start() != 0) return 1;
+
+    mult_matrix(a, b, n);
+
+    Perf_Evaluator_Result result;
+    if (perf_evaluator_end(&result) != 0) return 1;
+
+    printf("%f\n", result.real_time);
+    printf("%f\n", result.proc_time);
+    printf("%lld\n", result.tot_ins);
+    printf("%lld\n", result.tot_cyc);
+    printf("%f\n", result.ipc);
+    printf("%lld\n", result.l1_dcm);
+    printf("%lld\n", result.l2_dcm);
+    
     return 0; 
 }
