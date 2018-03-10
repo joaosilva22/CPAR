@@ -31,17 +31,10 @@ fi
 cd ..
 output="$3/data/N=$2_$(date +%Y-%m-%d:%H:%M:%S).csv"
 
-echo -n "," >> "$output"
-for i in `seq 1 $2`;
-do
-    echo -n "$i," >> "$output"
-done
-echo "" >> "$output"
-
 # C/CPP #
 
 echo "Building c++ version..." 
-g++ -std=c++11 -fopenmp ./$3/main.cpp -o ./$3/main
+g++ -std=c++11 -fopenmp ./$3/main.cpp ./common/performance_evaluator.cpp -I /opt/papi/include /opt/papi/lib/libpapi.a -o ./$3/main
 if (( $? != 0 )); then
     echo "Failed to build c++ version. Aborting."
     exit 1
@@ -50,13 +43,16 @@ echo "Success."
 
 echo "Running c++ version..."
 total_cpp=0
-echo -n "C++," >> "$output"
+echo "C++ Results" >> "$output"
+echo "Run, Real Time (s), Proc Time (s), Tot Ins, Tot Cyc, IPC, L1 DCM, L2 DCM" >> "$output"
 for i in `seq 1 $2`;
 do
-    time=`./$3/main $1`
-    total_cpp=`python -c "print $total_cpp + $time"`
-    echo "$i : $time"
-    echo -n "$time," >> "$output"
+    out=`./$3/main $1`
+    readarray -t y <<<"$out"
+    total_cpp=`python -c "print $total_cpp + ${y[0]}"`
+    printf -v it "%03d" $i
+    echo "$it : real_time=${y[0]}  proc_time=${y[1]}  tot_ins=${y[2]}  tot_cyc=${y[3]}  ipc=${y[4]}  l1_dcm=${y[5]}  l2_dcm=${y[6]}"
+    echo "$it, ${y[0]}, ${y[1]}, ${y[2]}, ${y[3]}, ${y[4]}, ${y[5]}, ${y[6]}" >> "$output"
 done
 echo "" >> "$output"
 
@@ -77,13 +73,15 @@ fi
 
 echo "Running python version..."
 total_py=0
-echo -n "Python," >> "$output"
+echo "Python Results" >> "$output"
+echo "Run, Real Time (s)" >> "$output"
 for i in `seq 1 $2`;
 do
     time=`python ./$3/main.py $1`
     total_py=`python -c "print $total_py + $time"`
-    echo "$i : $time"
-    echo -n "$time," >> "$output"
+    printf -v it "%03d" $i
+    echo "$it : real_time=$time"
+    echo "$it, $time" >> "$output"
 done
 echo "" >> "$output"
 
@@ -105,13 +103,15 @@ echo "Success."
 
 echo "Running Java version..."
 total_java=0
-echo -n "Java," >> "../$output"
+echo "Java Results" >> "../$output"
+echo "Run, Real Time (s)" >> "../$output"
 for i in `seq 1 $2`;
 do
     time=`java Main $1`
     total_java=`python -c "print $total_java + $time"`
-    echo "$i : $time"
-    echo -n "$time," >> "../$output"
+    printf -v it "%03d" $i
+    echo "$it : real_time=$time"
+    echo "$it, $time" >> "../$output"
 done
 echo "" >> "../$output"
 cd ..
