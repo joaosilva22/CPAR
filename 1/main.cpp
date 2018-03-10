@@ -52,13 +52,7 @@ int main(int argc, char ** argv)
     Perf_Evaluator_Result result;
     if (perf_evaluator_end(&result) != 0) return 1;
 
-    printf("%f\n", result.real_time);
-    printf("%f\n", result.proc_time);
-    printf("%lld\n", result.tot_ins);
-    printf("%lld\n", result.tot_cyc);
-    printf("%f\n", result.ipc);
-    printf("%lld\n", result.l1_dcm);
-    printf("%lld\n", result.l2_dcm);
+    perf_evaluator_print(&result);
     
     return 0; 
 }

@@ -16,3 +16,5 @@ struct Perf_Evaluator_Result
 int perf_evaluator_start();
 
 int perf_evaluator_end(Perf_Evaluator_Result * result);
+
+void perf_evaluator_print(Perf_Evaluator_Result * result);

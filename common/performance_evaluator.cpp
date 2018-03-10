@@ -77,11 +77,6 @@ int perf_evaluator_end(Perf_Evaluator_Result * result)
     long long real_time = PAPI_get_real_usec();
     long long proc_time = PAPI_get_virt_usec();
 
-    // Convert real time and proc time to seconds using multiplication
-    // because it is much faster
-    result->real_time = ((float)(real_time - last_measured_real_time)) * 0.000001;
-    result->proc_time = ((float)(proc_time - last_measured_proc_time)) * 0.000001;
-
     // Stop PAPI counters
     long long event_set_values[4];
     retval = PAPI_stop(event_set, event_set_values);
@@ -91,6 +86,13 @@ int perf_evaluator_end(Perf_Evaluator_Result * result)
         return retval;
     }
 
+    
+    // Convert real time and proc time to seconds using multiplication
+    // because it is much faster
+    result->real_time = ((float)(real_time - last_measured_real_time)) * 0.000001;
+    result->proc_time = ((float)(proc_time - last_measured_proc_time)) * 0.000001;
+
+    // Store the other results
     result->tot_ins = event_set_values[0];
     result->tot_cyc = event_set_values[1];
     result->ipc = (float)event_set_values[0]/(float)event_set_values[1];
@@ -99,4 +101,15 @@ int perf_evaluator_end(Perf_Evaluator_Result * result)
     result->l2_dcm = event_set_values[3];
 
     return 0;
+}
+
+void perf_evaluator_print(Perf_Evaluator_Result * result)
+{
+    printf("%f\n", result->real_time);
+    printf("%f\n", result->proc_time);
+    printf("%lld\n", result->tot_ins);
+    printf("%lld\n", result->tot_cyc);
+    printf("%f\n", result->ipc);
+    printf("%lld\n", result->l1_dcm);
+    printf("%lld\n", result->l2_dcm);
 }

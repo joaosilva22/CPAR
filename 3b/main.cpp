@@ -3,6 +3,8 @@
 #include <chrono>
 #include <omp.h>
 
+#include "../common/performance_evaluator.h"
+
 typedef int ** matrix;
 
 matrix create_matrix(int n)
@@ -45,10 +47,14 @@ int main(int argc, char ** argv)
     matrix a = create_matrix(n);
     matrix b = create_matrix(n);
 
-    auto begin = std::chrono::system_clock::now();
-    mult_matrix(a, b, n);
-    auto end = std::chrono::system_clock::now();
+    if (perf_evaluator_start() != 0) return 1;
 
-    printf("%f\n", std::chrono::duration<double>(end - begin).count());
+    mult_matrix(a, b, n);
+
+    Perf_Evaluator_Result result;
+    if (perf_evaluator_end(&result) != 0) return 1;
+
+    perf_evaluator_print(&result);
+
     return 0; 
 }
