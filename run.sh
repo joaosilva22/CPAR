@@ -29,7 +29,7 @@ then
     mkdir data
 fi
 cd ..
-output="$3/data/N=$2_$(date +%Y-%m-%d:%H:%M:%S).csv"
+output="$3/data/EX=$3_M=$1_N=$2_$(date +%Y-%m-%d:%H:%M:%S).csv"
 
 # C/CPP #
 
